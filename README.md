@@ -38,6 +38,6 @@ Each folder is a self-contained project — open it and start exploring! 👇
 git clone https://github.com/maruthu04/frontend-projects.git
 
 # Open a project folder
-cd frontend-projects/digital-clock
+cd frontend-projects/netflix-clone
 
 # Open index.html in your browser
