@@ -18,9 +18,7 @@ Each folder is a self-contained project — open it and start exploring! 👇
 
 | # | Project Name | Description | Live Demo |
 |---|---------------|-------------|------------|
-| 1 | **Digital Clock** | A real-time digital clock with JS time functions | [View Demo](#) |
-| 2 | **To-Do App** | Task manager app with local storage | [View Demo](#) |
-| 3 | **Calculator** | A modern calculator with responsive UI | [View Demo](#) |
+| 1 | **Netflix Clone** | Responsive UI clone of Netflix using HTML & CSS | [Live Demo](https://maruthu04.github.io/Frontend-Projects/netflix-clone/) |
 
 > Add more projects as you build them 🚀
 
