@@ -18,7 +18,7 @@ Each folder is a self-contained project — open it and start exploring! 👇
 
 | # | Project Name | Description | Live Demo |
 |---|---------------|-------------|------------|
-| 1 | **Netflix Clone** | Responsive UI clone of Netflix using HTML & CSS | [Live Demo](https://maruthu04.github.io/Frontend-Projects/Netflix-Clone(HTYML-CSS)/) |
+| 1 | **Netflix Clone** | Responsive UI clone of Netflix using HTML & CSS | [Live Demo](https://maruthu04.github.io/frontend-projects/netflix-clone/) |
 
 > Add more projects as you build them 🚀
 
