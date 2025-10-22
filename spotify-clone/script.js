@@ -95,30 +95,83 @@ async function getSongs(folder) {
   }
   
   // Attach click listeners to the newly rendered song list items
-  Array.from(
-    document.querySelector(".songsList").getElementsByTagName("li")
-  ).forEach((e) => {
+  const songListItems = document.querySelector(".songsList").getElementsByTagName("li");
+  console.log("Found song list items:", songListItems.length);
+  
+  Array.from(songListItems).forEach((e, index) => {
+    console.log(`Attaching listener to song ${index + 1}`);
     e.addEventListener("click", (element) => {
-      console.log(e.querySelector(".info").firstElementChild.innerHTML);
-      playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
+      console.log("Song clicked!");
+      const songName = e.querySelector(".info").firstElementChild.innerHTML;
+      console.log("Clicked song:", songName);
+      console.log("Current folder:", currFolder);
+      console.log("Full path will be:", `/${currFolder}/${songName}`);
+      playMusic(songName.trim());
+    });
+  });
+}
+
+// Function to re-attach song click listeners
+function attachSongListeners() {
+  const songListItems = document.querySelector(".songsList").getElementsByTagName("li");
+  console.log("Re-attaching listeners to song list items:", songListItems.length);
+  
+  Array.from(songListItems).forEach((e, index) => {
+    // Remove any existing listeners first
+    e.replaceWith(e.cloneNode(true));
+  });
+  
+  // Re-query after cloning
+  const newSongListItems = document.querySelector(".songsList").getElementsByTagName("li");
+  Array.from(newSongListItems).forEach((e, index) => {
+    e.addEventListener("click", (element) => {
+      console.log("Song clicked!");
+      const songName = e.querySelector(".info").firstElementChild.innerHTML;
+      console.log("Clicked song:", songName);
+      console.log("Current folder:", currFolder);
+      console.log("Full path will be:", `/${currFolder}/${songName}`);
+      playMusic(songName.trim());
     });
   });
 }
 
 const playMusic = (track, pause = false) => {
-  currentSong.src = `/${currFolder}/${track}`;
+  const audioPath = `/${currFolder}/${track}`;
+  console.log("Setting audio source to:", audioPath);
+  
+  currentSong.src = audioPath;
+  
+  // Add event listeners for debugging
+  currentSong.addEventListener('loadstart', () => {
+    console.log('Audio loading started');
+  });
+  
+  currentSong.addEventListener('canplay', () => {
+    console.log('Audio can start playing');
+  });
+  
+  currentSong.addEventListener('error', (e) => {
+    console.error('Audio loading error:', e);
+    console.error('Failed to load:', audioPath);
+  });
+  
   if (!pause) {
-    currentSong.play();
-    play.innerHTML = `<!-- Pause Button -->
-                <svg viewBox="0 0 48 48" width="48" height="48" class="pause-icon">
-                <circle cx="24" cy="24" r="22" fill="white" />
-                <g fill="black">
-                <rect x="17" y="16" width="5" height="16" />
-                <rect x="26" y="16" width="5" height="16" />
-                </g>
-                </svg>
-                `;
+    currentSong.play().then(() => {
+      console.log('Audio started playing successfully');
+      play.innerHTML = `<!-- Pause Button -->
+                  <svg viewBox="0 0 48 48" width="48" height="48" class="pause-icon">
+                  <circle cx="24" cy="24" r="22" fill="white" />
+                  <g fill="black">
+                  <rect x="17" y="16" width="5" height="16" />
+                  <rect x="26" y="16" width="5" height="16" />
+                  </g>
+                  </svg>
+                  `;
+    }).catch((error) => {
+      console.error('Error playing audio:', error);
+    });
   }
+  
   document.querySelector(".songinfo").innerHTML = track;
   document.querySelector(".songtime").innerHTML = "00.00 / 00.00";
 };
@@ -172,29 +225,46 @@ const playMusic = (track, pause = false) => {
 
 async function main() {
   await getSongs("Songs/english");
-  // console.log(songs);
-  playMusic(songs[0], true);
+  console.log("Loaded songs:", songs);
+  if (songs.length > 0) {
+    playMusic(songs[0], true); // Load first song but don't play it yet
+  }
+  
+  // Ensure song listeners are attached
+  attachSongListeners();
 
 //   displayAlbums();
 
-  play.addEventListener("click", () => {
+  const playButton = document.getElementById("play");
+  if (!playButton) {
+    console.error("Play button not found!");
+    return;
+  }
+  
+  playButton.addEventListener("click", () => {
+    console.log("Play button clicked, current song paused:", currentSong.paused);
     if (currentSong.paused) {
-      currentSong.play();
-      play.innerHTML = `
-            <svg viewBox="0 0 48 48" width="48" height="48" class="pause-icon">
-            <circle cx="24" cy="24" r="22" fill="white" />
-            <g fill="black">
-            <rect x="17" y="16" width="5" height="16" />
-            <rect x="26" y="16" width="5" height="16" />
-            </g>
-            </svg>
-            `;
+      currentSong.play().then(() => {
+        console.log("Song started playing");
+        playButton.innerHTML = `
+              <svg viewBox="0 0 48 48" width="48" height="48" class="pause-icon">
+              <circle cx="24" cy="24" r="22" fill="white" />
+              <g fill="black">
+              <rect x="17" y="16" width="5" height="16" />
+              <rect x="26" y="16" width="5" height="16" />
+              </g>
+              </svg>
+              `;
+      }).catch((error) => {
+        console.error("Error playing audio:", error);
+      });
     } else {
       currentSong.pause();
-      play.innerHTML = `<svg viewBox="0 0 48 48" class="play-icon">
-                    <circle cx="24" cy="24" r="22" fill="white" />
-                    <polygon points="20,16 32,24 20,32" fill="black" />
-                  </svg>`;
+      console.log("Song paused");
+      playButton.innerHTML = `<svg viewBox="0 0 48 48" class="play-icon">
+                        <circle cx="24" cy="24" r="22" fill="white" />
+                        <polygon points="20,16 32,24 20,32" fill="black" />
+                      </svg>`;
     }
   });
 
@@ -225,21 +295,34 @@ async function main() {
     document.querySelector(".left").style.left = "-130%";
   });
 
-  previous.addEventListener("click", () => {
-    currentSong.pause();
-    let index = songs.indexOf(currentSong.src.split("/").slice(-1)[0]);
-    if (index - 1 >= 0) {
-      playMusic(songs[index - 1]);
-    }
-  });
-
-  next.addEventListener("click", () => {
-    currentSong.pause();
-    let index = songs.indexOf(currentSong.src.split("/").slice(-1)[0]);
-    if (index + 1 < songs.length) {
-      playMusic(songs[index + 1]);
-    }
-  });
+  const previousButton = document.getElementById("previous");
+  const nextButton = document.getElementById("next");
+  
+  if (previousButton) {
+    previousButton.addEventListener("click", () => {
+      console.log("Previous button clicked");
+      currentSong.pause();
+      let currentTrack = currentSong.src.split("/").slice(-1)[0];
+      let index = songs.indexOf(currentTrack);
+      console.log("Current track:", currentTrack, "Index:", index);
+      if (index - 1 >= 0) {
+        playMusic(songs[index - 1]);
+      }
+    });
+  }
+  
+  if (nextButton) {
+    nextButton.addEventListener("click", () => {
+      console.log("Next button clicked");
+      currentSong.pause();
+      let currentTrack = currentSong.src.split("/").slice(-1)[0];
+      let index = songs.indexOf(currentTrack);
+      console.log("Current track:", currentTrack, "Index:", index);
+      if (index + 1 < songs.length) {
+        playMusic(songs[index + 1]);
+      }
+    });
+  }
 
   document
     .querySelector(".volumecontrol")
@@ -251,6 +334,7 @@ async function main() {
 
   Array.from(document.getElementsByClassName("card")).forEach((e) => {
     e.addEventListener("click", async (item) => {
+      console.log("Card clicked:", item.currentTarget.dataset.folder);
       await getSongs(`Songs/${item.currentTarget.dataset.folder}`);
       // Re-render the song list after loading new songs
       let songUl = document
@@ -272,6 +356,11 @@ async function main() {
               </div>
             </li> `;
       }
+      
+      // Re-attach song listeners after rendering new songs
+      setTimeout(() => {
+        attachSongListeners();
+      }, 100);
     });
   });
 
