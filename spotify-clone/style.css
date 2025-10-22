@@ -243,7 +243,7 @@ body {
   list-style-type: decimal;
   font-size: 16px;
   display: flex;
-  gap: 40px;
+  gap: 20px;
   padding: 8px 0;
   cursor: pointer;
   border: 1px solid white;
@@ -251,7 +251,7 @@ body {
   border-radius: 5px;
   padding: 13px;
   margin: 12px;
-  max-width: 80%;
+  max-width: 100%;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -268,8 +268,8 @@ body {
 
 .playnow span {
   font-size: 18px;
-  width: 100px;
-  margin-left: 24px;
+  width: 90px;
+  /* margin-left: 24px; */
 }
 
 .info {

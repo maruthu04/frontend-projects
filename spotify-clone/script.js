@@ -19,25 +19,66 @@ function secondsToMinutesSeconds(seconds) {
 
 async function getSongs(folder) {
   currFolder = folder;
-  let a = await fetch(`/${folder}/`);
-  let response = await a.text();
-  // console.log(response);
-  let div = document.createElement("div");
-  div.innerHTML = response;
-  let as = div.getElementsByTagName("a");
-  songs = [];
-  for (let index = 0; index < as.length; index++) {
-    const element = as[index];
-    if (element.href.endsWith(".mp3")) {
-      songs.push(element.href.split(`/${folder}/`)[1]); //.split(".")[0]//Dont do this , because audio function want ".mp3" to play audio files...
-    }
-  }
+  
+  // Define song lists for each folder
+  const songLists = {
+    "Songs/english": [
+      "Bones.mp3",
+      "CalmDowm.mp3", 
+      "Cradles.mp3",
+      "Heat_Waves.mp3",
+      "Mockingbird.mp3",
+      "No_Lie.mp3",
+      "Shape_of_You.mp3"
+    ],
+    "Songs/hindi": [
+      "AArambh.mp3",
+      "Adharam.mp3",
+      "Chalisa.mp3",
+      "Hum_Katha_Sunate.mp3",
+      "Kaun_Hain_Voh.mp3",
+      "Kruishna.mp3",
+      "Narayan.mp3",
+      "radhaKrish.mp3",
+      "Ram_Darshan.mp3",
+      "Ram_Siya.mp3",
+      "Rudra.mp3",
+      "shiva_maha.mp3",
+      "ShivStro.mp3"
+    ],
+    "Songs/tamil": [
+      "AppaUn.mp3",
+      "Enjoy_Enjaami.mp3",
+      "Jorthaale.mp3",
+      "Kedi_Billa.mp3",
+      "MeghamKaruka.mp3",
+      "OovaruPookalume.mp3",
+      "Pathala_Pathala.mp3",
+      "Ponni_Nadhi.mp3",
+      "PunniyamThedi.mp3",
+      "Thaikelavi.mp3",
+      "Thalakodum.mp3",
+      "Thee_Thalapathy.mp3",
+      "Theivathhuku.mp3",
+      "Thenmozhi.mp3",
+      "Vaa_Thalaivaa.mp3",
+      "vaasamoola.mp3"
+    ],
+    "Songs/englishAlpha": [
+      "hare-krishna.mp3",
+      "hare-raama.mp3"
+    ]
+  };
+  
+  songs = songLists[folder] || [];
+  console.log("Loaded songs for folder:", folder, songs);
 
   let songUl = document
     .querySelector(".songsList")
     .getElementsByTagName("ul")[0];
   songUl.innerHTML = "";
   for (const song of songs) {
+    console.log("Rendering song:", song);
     songUl.innerHTML =
       songUl.innerHTML +
       `
@@ -52,10 +93,20 @@ async function getSongs(folder) {
               </div>
             </li> `;
   }
+  
+  // Attach click listeners to the newly rendered song list items
+  Array.from(
+    document.querySelector(".songsList").getElementsByTagName("li")
+  ).forEach((e) => {
+    e.addEventListener("click", (element) => {
+      console.log(e.querySelector(".info").firstElementChild.innerHTML);
+      playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
+    });
+  });
 }
 
 const playMusic = (track, pause = false) => {
-  currentSong.src = `/${currFolder}/` + track;
+  currentSong.src = `/${currFolder}/${track}`;
   if (!pause) {
     currentSong.play();
     play.innerHTML = `<!-- Pause Button -->
@@ -120,20 +171,11 @@ const playMusic = (track, pause = false) => {
 // }
 
 async function main() {
-  await getSongs("Songs/${folder}");
+  await getSongs("Songs/english");
   // console.log(songs);
   playMusic(songs[0], true);
 
 //   displayAlbums();
-
-  Array.from(
-    document.querySelector(".songsList").getElementsByTagName("li")
-  ).forEach((e) => {
-    e.addEventListener("click", (element) => {
-      console.log(e.querySelector(".info").firstElementChild.innerHTML);
-      playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
-    });
-  });
 
   play.addEventListener("click", () => {
     if (currentSong.paused) {
@@ -209,7 +251,27 @@ async function main() {
 
   Array.from(document.getElementsByClassName("card")).forEach((e) => {
     e.addEventListener("click", async (item) => {
-      songs = await getSongs(`Songs/${item.currentTarget.dataset.folder}`);
+      await getSongs(`Songs/${item.currentTarget.dataset.folder}`);
+      // Re-render the song list after loading new songs
+      let songUl = document
+        .querySelector(".songsList")
+        .getElementsByTagName("ul")[0];
+      songUl.innerHTML = "";
+      for (const song of songs) {
+        songUl.innerHTML =
+          songUl.innerHTML +
+          `
+             <li><img class="invert" src="Images/music.svg" alt="">
+              <div class="info">
+                <div>${song}</div>
+                <div>Maruthu</div>
+              </div>
+              <div class="playnow">
+                <span>Play Now</span>
+                <svg version="1.1" id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="play-circle.svg" inkscape:version="0.48.4 r9939" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="28px" height="28px" viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve" fill="#ffffff" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="path17111" inkscape:connector-curvature="0" d="M600,0C268.65,0,0,268.65,0,600c0,331.35,268.65,600,600,600 c331.35,0,600-268.65,600-600C1200,268.65,931.35,0,600,0z M600,139.16c254.499,0,460.84,206.341,460.84,460.84 S854.499,1060.84,600,1060.84S139.16,854.499,139.16,600S345.501,139.16,600,139.16z M450,300.439V899.56L900,600L450,300.439z"></path> </g></svg>
+              </div>
+            </li> `;
+      }
     });
   });
 
